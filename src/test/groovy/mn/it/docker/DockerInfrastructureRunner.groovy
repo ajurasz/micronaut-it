@@ -1,10 +1,9 @@
 package mn.it.docker
 
-import org.spockframework.runtime.extension.IGlobalExtension
-import org.spockframework.runtime.model.SpecInfo
+import org.spockframework.runtime.extension.AbstractGlobalExtension
 import org.testcontainers.containers.GenericContainer
 
-class DockerInfrastructureRunner implements IGlobalExtension {
+class DockerInfrastructureRunner extends AbstractGlobalExtension {
     private final Collection<GenericContainer> containers = [
             MySqlContainer.MY_SQL_CONTAINER
     ]
@@ -16,10 +15,6 @@ class DockerInfrastructureRunner implements IGlobalExtension {
                 it.start()
             }
         }
-    }
-
-    @Override
-    void visitSpec(SpecInfo specInfo) {
     }
 
     @Override
