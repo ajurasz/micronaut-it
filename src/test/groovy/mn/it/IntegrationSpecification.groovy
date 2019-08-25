@@ -2,27 +2,23 @@ package mn.it
 
 import io.micronaut.context.ApplicationContext
 import io.micronaut.http.client.RxHttpClient
-import io.micronaut.http.client.annotation.Client
-import io.micronaut.test.annotation.MicronautTest
-import io.micronaut.test.support.TestPropertyProvider
+import io.micronaut.runtime.server.EmbeddedServer
 import mn.it.docker.MySqlContainer
 import org.flywaydb.core.Flyway
+import spock.lang.AutoCleanup
 import spock.lang.Specification
 
-import javax.inject.Inject
+abstract class IntegrationSpecification extends Specification {
 
-@MicronautTest(environments = "it")
-abstract class IntegrationSpecification extends Specification implements TestPropertyProvider {
+    @AutoCleanup
+    private static EmbeddedServer embeddedServer = ApplicationContext.run(
+            EmbeddedServer,
+            ["datasources.default.port": MySqlContainer.MY_SQL_CONTAINER.firstMappedPort] as Map<String, Object>,
+            "it")
 
-    @Inject
-    private ApplicationContext applicationContext
+    private Flyway flyway = getBean(Flyway)
 
-    @Inject
-    private Flyway flyway
-
-    @Inject
-    @Client('/')
-    RxHttpClient httpClient
+    RxHttpClient httpClient = embeddedServer.applicationContext.createBean(RxHttpClient, embeddedServer.getURI())
 
     def cleanup() {
         flyway.clean()
@@ -30,11 +26,6 @@ abstract class IntegrationSpecification extends Specification implements TestPro
     }
 
     protected <T> T getBean(Class<T> beanType) {
-        applicationContext.getBean(beanType)
-    }
-
-    @Override
-    Map<String, String> getProperties() {
-        ["datasources.default.port": MySqlContainer.MY_SQL_CONTAINER.firstMappedPort] as Map<String, String>
+        embeddedServer.applicationContext.getBean(beanType)
     }
 }
