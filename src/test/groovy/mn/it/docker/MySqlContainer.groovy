@@ -7,4 +7,8 @@ class MySqlContainer {
             .withEnv("MYSQL_ROOT_PASSWORD", "password")
             .withEnv("MYSQL_DATABASE", "it")
             .withExposedPorts(3306)
+            .with {
+                it.start()
+                it
+            }
 }
