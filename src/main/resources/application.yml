@@ -1,0 +1,29 @@
+---
+micronaut:
+  application:
+    name: mn-it
+
+---
+datasources:
+  default:
+    url: jdbc:mysql://localhost:${datasources.default.port:3330}/it
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: root
+    password: password
+jpa:
+  default:
+    entity-scan:
+      packages:
+        - 'mn.it.todo.domain'
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: none
+flyway:
+  datasources:
+    default:
+      locations:
+        - classpath:db/migration
+endpoints:
+  all:
+    sensitive: false
